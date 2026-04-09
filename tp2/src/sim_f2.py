@@ -16,18 +16,17 @@ class SimF2(Simulator):
 
     def sim(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        # ==== PUT CODE HERE ====
-        raise NotImplementedError("=== put code here ===")
-        f = ...
-        g = ...
+        x1,x2 = x
+        f = (1-x1)**2 + 100*(x2-x1**2)**2
+        g = np.array([-2*(1-x1) - 400*x1*(x2-x1**2) , 200*(x2-x1**2)])
         return f, g, None
 
     def primal(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        raise NotImplementedError("=== put code here ===")
-        return
+        x1,x2 = x 
+        return (1-x1)**2 + 100*(x2-x1**2)**2
 
     def gradient(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        raise NotImplementedError("=== put code here ===")
-        return
+        x1,x2 = x
+        return np.array([-2*(1-x1) - 400*x1*(x2-x1**2) , 200*(x2-x1**2)])

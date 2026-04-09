@@ -17,13 +17,13 @@ class GradDescent(Descent):
         self.prec = prec
 
     def stop(self, f, g, h, it: int):
-        # ==== PUT CODE HERE ====
         # Decider si l'algo doit s'arrêter
-        raise NotImplementedError("=== put code here ===")
-        return True
+        if np.linalg.norm(g)< self.prec:
+            return True
+        if it > self.nsteps:
+            return True
+        return False
 
     def update(self, f, g, h):
-        # ==== PUT CODE HERE ====
-        raise NotImplementedError("=== put code here ===")
-        # Mettre à jour le vecteur x selon le gradient.
+        self.x = self.x - self.lr*g
         return self.x

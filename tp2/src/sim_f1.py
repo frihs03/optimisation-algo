@@ -19,27 +19,23 @@ class SimF1(Simulator):
         Simuler f1
         """
         assert x.shape == (self.n,)
-
-        # ==== PUT CODE HERE ====
-        raise NotImplementedError("=== put code here ===")
-        f = ...
-        g = ...
-        # Pour Newton, calculer en plus H la hessienne
-        # H = ???
-        # return f, g, h
-        return f, g, None
+        k = np.arange(1,self.n + 1)
+        f = np.sum(k * x**2)
+        g = 2 * k * x
+        h = np.diag(2*(k+1))
+        return f, g, h
 
     def primal(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        raise NotImplementedError("=== put code here ===")
-        return
+        k = np.arange(1,self.n + 1)
+        return np.sum(k * x**2)
 
     def gradient(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        raise NotImplementedError("=== put code here ===")
-        return
+        k = np.arange(1,self.n + 1)
+        return 2 * k * x
 
     def hessian(self, x: np.ndarray):
         assert x.shape == (self.n,)
-        raise NotImplementedError("=== put code here ===")
-        return
+        k = np.arange(1,self.n + 1)
+        return np.diag(2*(k+1))

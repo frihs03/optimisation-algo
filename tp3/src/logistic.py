@@ -73,8 +73,10 @@ class SimulatorStudentsDataset(SimulatorProx):
             return l / m
 
     def logistic_loss_vectorized(self, x: np.ndarray) -> float:
-        del x
-        raise NotImplementedError("Implement the vectorized version if you can")
+        z = self.A @ x
+        bz = self.b * z
+        return np.mean(np.logaddexp(0, -bz))
+        
 
     def l2_regularization(self, x: np.ndarray) -> float:
         return self.lam2 / 2.0 * np.dot(x,x)
@@ -100,19 +102,23 @@ class SimulatorStudentsDataset(SimulatorProx):
             return grad/m + self.lam2 * x
 
     def f_grad_vectorized(self, x: np.ndarray) -> np.ndarray:
-        del x
-        raise NotImplementedError("Implement the vectorized version if you can")
+        z = self.A @ x
+        bz = self.b * z
+        q = 1 / (1+ np.exp(bz))
+        grad = -self.A.T @ (self.b * q) / self.A.shape[0]
+        return grad + self.lam2 * x
 
+        
     def l1_regularization(self, x: np.ndarray) -> float:
-        # ===== INSERT CODE HERE =======
-        raise NotImplementedError("Implement the l1-regularization.")
+        return self.lam1 * np.linalg.norm(x, 1)
 
     def g(self, x: np.ndarray) -> float:
         return self.l1_regularization(x)
 
     def g_prox(self, y: np.ndarray, gamma: float) -> np.ndarray:
-        # ===== INSERT CODE HERE =======
-        raise NotImplementedError("Implement the l1-regularization.")
+        #resultat explicite de g_prox
+        a = gamma * self.lam1
+        return np.sign(y) * np.maximum(np.abs(y) - a, 0)
 
     def prox(self, y: np.ndarray, lr: float) -> np.ndarray:
         return self.g_prox(y, lr)
@@ -164,8 +170,33 @@ class SimulatorStudentsDataset(SimulatorProx):
             return pred, float(perf) / m
 
     def prediction_train_vectorized(self, x: np.ndarray, do_print: bool):
-        del x
-        raise NotImplementedError("Implement the vectorized version if you can")
+        m = self.A.shape[0]
+        z = self.A @ x
+        p = 1.0 / (1+np.exp(-z))
+        #predictions
+        pred = np.where(p>0.5 ,1 ,-1)
+        #performences
+        perf = np.mean(pred == self.b)
+        #printing
+        if do_print:
+            for i in range(m):
+                if pred[i] == 1:
+                    confidence = (p[i] - 0.5) * 200
+                else:
+                    confidence = 100 - (0.5 - p[i]) * 200
+
+                correct = "True" if pred[i] == self.b[i] else "False"
+
+                print(
+                    "True class: {:d} \t-- Predicted: {} \t(confidence: {:.1f}%)\t{}".format(
+                        int(self.b[i]),
+                        int(pred[i]),
+                        confidence,
+                        correct
+                    )
+                )
+
+        return pred, perf
 
     def prediction_test(self, x: np.ndarray, do_print: bool):
         try:
@@ -212,8 +243,33 @@ class SimulatorStudentsDataset(SimulatorProx):
             return pred, float(perf) / m_test
 
     def prediction_test_vectorized(self, x: np.ndarray, do_print: bool):
-        del x
-        raise NotImplementedError("Implement the vectorized version if you can")
+        m = self.A_test.shape[0]
+        z = self.A_test @ x
+        p = 1.0 / (1-np.exp(-z))
+        #predictions
+        pred = np.where(p>0.5 ,1 ,-1)
+        #performences
+        perf = np.mean(pred == self.b_test)
+        #printing
+        if do_print:
+            for i in range(m):
+                if pred[i] == 1:
+                    confidence = (p[i] - 0.5) * 200
+                else:
+                    confidence = 100 - (0.5 - p[i]) * 200
+
+                correct = "True" if pred[i] == self.b_test[i] else "False"
+
+                print(
+                    "True class: {:d} \t-- Predicted: {} \t(confidence: {:.1f}%)\t{}".format(
+                        int(self.b_test[i]),
+                        int(pred[i]),
+                        confidence,
+                        correct
+                    )
+                )
+
+        return pred, perf
 
     # === Plotting methods
 
